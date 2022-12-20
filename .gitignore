@@ -1,0 +1,9 @@
+.vscode
+node_modules
+
+.cache/
+package-lock.json
+.idea
+**.yaml.dec
+config.env
+notes.txt
