@@ -6,9 +6,6 @@ var moment = require('moment-timezone');
 const { cloudinary } = require('./../../middleware/cloudnary');
 
 
-
-
-
 exports.createUsers = catchAsync(async (req, res, next) => {
     if(req.files === null){
         const user = await User.create({...req.body,
@@ -34,8 +31,6 @@ exports.createUsers = catchAsync(async (req, res, next) => {
         data: user
     })}
 })
-
-
 
 exports.getAllUsers = catchAsync(async (req, res, next) => {
     let {pageNo, limit, role, search} = req.query;

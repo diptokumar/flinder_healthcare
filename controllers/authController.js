@@ -38,12 +38,8 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.signup = catchAsync(async (req, res, next) => {
   let newUser;
-  const fileStr = req.files.image;
-  let result = await cloudinary.uploader.upload(fileStr.tempFilePath, {
-		public_id: `${Date.now()}`,
-		resource_type: "auto", //jpeg,png
-	});
-    if(req.files.image === undefined){
+  
+    // if(req.files.image === undefined){
       newUser = await User.create({
         name: req.body.name,
         email: req.body.email,
@@ -53,19 +49,25 @@ exports.signup = catchAsync(async (req, res, next) => {
         passwordConfirm: req.body.passwordConfirm,
         role: req.body.role
       });
-    }else{
-      newUser = await User.create({
-        name: req.body.name,
-        email: req.body.email,
-        // employeeId: req.body.employeeId,
-        phoneNumber: req.body.phoneNumber,
-        password: req.body.password,
-        passwordConfirm: req.body.passwordConfirm,
-        role: req.body.role,
-        image: result.secure_url
-      });
+    // }
+    // else{
+    //   const fileStr = req.files?.image;
+    //   let result = await cloudinary.uploader.upload(fileStr.tempFilePath, {
+    //     public_id: `${Date.now()}`,
+    //     resource_type: "auto", //jpeg,png
+    //   });
+    //   newUser = await User.create({
+    //     name: req.body.name,
+    //     email: req.body.email,
+    //     // employeeId: req.body.employeeId,
+    //     phoneNumber: req.body.phoneNumber,
+    //     password: req.body.password,
+    //     passwordConfirm: req.body.passwordConfirm,
+    //     role: req.body.role,
+    //     image: result.secure_url
+    //   });
         
-    }
+    // }
   
 
   res.status(201).json({

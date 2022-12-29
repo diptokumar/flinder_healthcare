@@ -13,6 +13,7 @@ const globalErrorHandler = require('./controllers/errorController');
 const userRouter = require('./routes/UserRoute/userRoutes');
 
 
+const permissionRouter = require('./routes/PermissionRoute/permissionRoute');
 
 
 
@@ -74,6 +75,7 @@ app.use((req, res, next) => {
 // 3) ROUTES
 app.use('/', healthcheck);
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/permission', permissionRouter);
 
 
 
