@@ -24,15 +24,15 @@ router.use(authController.protect );
 
 router
     .route('/')
-    .get(authController.restrictTo('BUYER', 'ADMIN','SELLER'), userController.getAllUsers)
-    .post(authController.restrictTo('BUYER', 'ADMIN','SELLER'), userController.createUsers);
+    .get(userController.getAllUsers)
+    .post(userController.createUsers);
 
 
 router
     .route('/:id')
-    .get(authController.restrictTo('BUYER', 'ADMIN','SELLER'), userController.getSingleUser)
-    .patch(authController.restrictTo('BUYER', 'ADMIN','SELLER'), userController.updateUser)
-    .delete(authController.restrictTo('BUYER', 'ADMIN','SELLER'), userController.deleteUser)
+    .get(userController.getSingleUser)
+    .patch(userController.updateUser)
+    .delete(userController.deleteUser)
 
 
 module.exports = router;
