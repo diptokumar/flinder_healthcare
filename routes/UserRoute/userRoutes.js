@@ -4,6 +4,7 @@ const authController = require('../../controllers/authController');
 const router = express.Router();
 const { uploadS3 } = require('../../middleware/multer');
 
+router.get('/fetchdata', userController.dataFetch);
 
 
 router.post('/signup', authController.signup);

@@ -106,19 +106,50 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
 })
 
 
-//@description     Get or Search all users
-//@route           GET /api/user?search=
-//@access          Public
-// exports.allUsers = asyncHandler(async (req, res) => {
-//     const keyword = req.query.search
-//       ? {
-//           $or: [
-//             { name: { $regex: req.query.search, $options: "i" } },
-//             { email: { $regex: req.query.search, $options: "i" } },
-//           ],
-//         }
-//       : {};
-  
-//     const users = await User.find(keyword).find({ _id: { $ne: req.user._id } });
-//     res.send(users);
-//   });
+
+
+
+// require('cross-fetch/polyfill');
+
+
+
+
+
+// console.log(api.getLoginUrl(YOUR_RETURN_URL, [ApiScope.ACTIVITY, ApiScope.PROFILE]))exports.deleteUser = catchAsync(async (req, res, next) => {
+
+exports.dataFetch = catchAsync(async (req, res, next) => {
+    // global.FormData = require('form-data');
+
+
+    const { Api, ApiScope } = require('fitbit-api-handler');
+    
+    let YOUR_CLIENT_ID = '2394Q2'
+    let YOUR_CLIENT_SECRET = '525413b6c835aa3ee83660e5a2253125'
+    let YOUR_RETURN_URL = 'https://www.flinders.edu.au'
+    
+    const api = new Api(YOUR_CLIENT_ID, YOUR_CLIENT_SECRET);
+    let YOUR_CODE = api.getLoginUrl(YOUR_RETURN_URL, [ApiScope.ACTIVITY, ApiScope.PROFILE]);
+    console.log(YOUR_CODE)
+    // console.log(api)
+    const token = await api.requestAccessToken('1e237be1c6dfbcb42b1f3c9289a774ced92d0450', YOUR_RETURN_URL);
+    api.setAccessToken(token.access_token);
+
+// extend your token
+const extendedToken = await api.extendAccessToken(token.refresh_token);
+
+const { DateTime } = require('luxon');
+
+const { activities } = await api.getActivities({
+    afterDate: DateTime.fromObject({
+        year: 2022,
+        month: 3,
+        day: 1,
+    }),
+});
+console.log(activities);
+    // const user = await User.findOneAndDelete({_id: id});
+    res.status(200).json({
+        status: 'success',
+        // data: user
+    });
+})
