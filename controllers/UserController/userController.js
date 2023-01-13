@@ -4,7 +4,7 @@ const AppError = require('./../../utils/appError');
 // const moment = require('moment')
 var moment = require('moment-timezone');
 const { cloudinary } = require('./../../middleware/cloudnary');
-
+const { Api, ApiScope } = require('fitbit-api-handler');
 
 exports.createUsers = catchAsync(async (req, res, next) => {
     if(req.files === null){
@@ -107,31 +107,16 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
 
 
 
-
-
-// require('cross-fetch/polyfill');
-
-
-
-
-
-// console.log(api.getLoginUrl(YOUR_RETURN_URL, [ApiScope.ACTIVITY, ApiScope.PROFILE]))exports.deleteUser = catchAsync(async (req, res, next) => {
-
 exports.dataFetch = catchAsync(async (req, res, next) => {
-    // global.FormData = require('form-data');
+
+    const {secretToken} = req.body
 
 
-    const { Api, ApiScope } = require('fitbit-api-handler');
-    
-    let YOUR_CLIENT_ID = '2394Q2'
-    let YOUR_CLIENT_SECRET = '525413b6c835aa3ee83660e5a2253125'
-    let YOUR_RETURN_URL = 'https://www.flinders.edu.au'
-    
-    const api = new Api(YOUR_CLIENT_ID, YOUR_CLIENT_SECRET);
-    let YOUR_CODE = api.getLoginUrl(YOUR_RETURN_URL, [ApiScope.ACTIVITY, ApiScope.PROFILE]);
-    console.log(YOUR_CODE)
-    // console.log(api)
-    const token = await api.requestAccessToken('1e237be1c6dfbcb42b1f3c9289a774ced92d0450', YOUR_RETURN_URL);
+
+
+    const api = new Api(req.user.clientId, req.user.clientSecret );
+
+    const token = await api.requestAccessToken(secretToken, req.user.returnUrl);
     api.setAccessToken(token.access_token);
 
 // extend your token
@@ -146,10 +131,35 @@ const { activities } = await api.getActivities({
         day: 1,
     }),
 });
-console.log(activities);
-    // const user = await User.findOneAndDelete({_id: id});
     res.status(200).json({
         status: 'success',
-        // data: user
+        data: activities
+    });
+})
+
+
+exports.generateUrl = catchAsync(async (req, res, next) => {
+    // global.FormData = require('form-data');
+
+    const {clientId, clientSecret, url} = req.body
+    
+    
+    let YOUR_CLIENT_ID = clientId
+    let YOUR_CLIENT_SECRET = clientSecret
+    let YOUR_RETURN_URL = url
+    
+    const api = new Api(YOUR_CLIENT_ID, YOUR_CLIENT_SECRET);
+    let callbackurl = api.getLoginUrl(YOUR_RETURN_URL, [ApiScope.ACTIVITY, ApiScope.PROFILE]);
+
+
+    const user = await User.findOneAndUpdate({_id: req.user._id},{
+        clientId: clientId,
+        clientSecret: clientSecret,
+        returnUrl: url,
+        fitbit: true
+    });
+    res.status(200).json({
+        status: 'success',
+        data: callbackurl
     });
 })

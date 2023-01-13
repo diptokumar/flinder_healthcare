@@ -45,6 +45,13 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords are not the same!'
     }
   },
+  fitbit: {
+    type: Boolean,
+    default: false
+  },
+  clientId: String,
+  clientSecret: String,
+  returnUrl: String,
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
