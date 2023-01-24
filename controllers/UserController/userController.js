@@ -5,6 +5,7 @@ const AppError = require('./../../utils/appError');
 var moment = require('moment-timezone');
 const { cloudinary } = require('./../../middleware/cloudnary');
 const { Api, ApiScope } = require('fitbit-api-handler');
+const { default: axios } = require('axios');
 
 exports.createUsers = catchAsync(async (req, res, next) => {
     if(req.files === null){
@@ -110,14 +111,15 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
 exports.dataFetch = catchAsync(async (req, res, next) => {
 
     const {secretToken} = req.body
-
-
-
-
     const api = new Api(req.user.clientId, req.user.clientSecret );
 
-    const token = await api.requestAccessToken(secretToken, req.user.returnUrl);
+    const token = await api.requestAccessToken(secretToken, req.user.returnUrl, 360, "profile activity calories distance floors elevation  location and GPS " );
     api.setAccessToken(token.access_token);
+
+    console.log(token, "token")
+    console.log(extendedToken);
+
+    // https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=2394Q2&redirect_uri=https://www.flinders.edu.au&scope=activity%20heartrate%20location%20nutrition%20profile%20settings%20sleep%20social%20weight
 
 // extend your token
 const extendedToken = await api.extendAccessToken(token.refresh_token);
@@ -149,7 +151,10 @@ exports.generateUrl = catchAsync(async (req, res, next) => {
     let YOUR_RETURN_URL = url
     
     const api = new Api(YOUR_CLIENT_ID, YOUR_CLIENT_SECRET);
-    let callbackurl = api.getLoginUrl(YOUR_RETURN_URL, [ApiScope.ACTIVITY, ApiScope.PROFILE]);
+    let callbackurl = api.getLoginUrl(YOUR_RETURN_URL, [ApiScope.ACTIVITY, ApiScope.PROFILE,ApiScope.HEARTRATE, ApiScope.LOCATION, ApiScope.NUTRITION, ApiScope.SETTINGS, ApiScope.SLEEP,ApiScope.SOCIAL, ApiScope.WEIGHT ]);
+
+
+//    let callbackurl =  `https://www.fitbit.com/oauth2/authorize?response_type=code&client_id=${}&redirect_uri=https://www.flinders.edu.au&scope=activity%20heartrate%20location%20nutrition%20profile%20settings%20sleep%20social%20weight`
 
 
     const user = await User.findOneAndUpdate({_id: req.user._id},{
@@ -163,3 +168,86 @@ exports.generateUrl = catchAsync(async (req, res, next) => {
         data: callbackurl
     });
 })
+
+exports.getAccessToken = catchAsync(async (req, res, next) => {
+    // global.FormData = require('form-data');
+
+    const {secretToken} = req.body
+    const api = new Api(req.user.clientId, req.user.clientSecret );
+
+    const token = await api.requestAccessToken(secretToken, req.user.returnUrl, 360);
+    // api.setAccessToken(token.access_token);
+
+    console.log(token, "token")
+
+    const user = await User.findOneAndUpdate({_id: req.user._id},{
+        fitbit: true,
+        bearerToken: token.access_token,
+        refresh_token: token.refresh_token,
+        expireDate: token.expireDate
+    });
+    res.status(200).json({
+        status: 'success',
+        data: token
+    });
+})
+
+exports.extendToken = catchAsync(async (req, res, next) => {
+    // global.FormData = require('form-data');
+
+    // const {secretToken} = req.body
+    const api = new Api(req.user.clientId, req.user.clientSecret );
+
+    // api.setAccessToken(token.access_token);
+    const extendedToken = await api.extendAccessToken(req.user.refresh_token);
+    console.log(extendedToken, "token")
+
+    const user = await User.findOneAndUpdate({_id: req.user._id},{
+        fitbit: true,
+        bearerToken: extendedToken.access_token,
+        refresh_token: extendedToken.refresh_token,
+        expireDate: extendedToken.expireDate
+    });
+    res.status(200).json({
+        status: 'success',
+        data: extendedToken
+    });
+})
+
+
+exports.getDateActivity = catchAsync(async (req, res, next)=> {
+
+  const {date} = req.query;
+//   let url =  `https://api.fitbit.com/1/user/-/activities/date/${date}.json`;
+
+//   https://api.fitbit.com/1/user/-/activities/date/2023-01-20.json
+
+
+
+// let url =  `https://api.fitbit.com/1/user/-/activities/steps/date/today/today/1min.json`;
+
+
+let url = `https://web-api.fitbit.com/1/user/B5SMNF/activities/minutesFairlyActive/date/2023-01-23/2023-01-16.json`
+
+
+
+  let header = {
+    "authorization": `Bearer ${req.user.bearerToken}`
+  }
+
+  
+
+  let data = await axios.get(url,{
+    headers: header
+  });
+  console.log(header, url, data)
+
+  res.status(200).json({
+    status: 'Success',
+    data: data.data
+  })
+
+
+})
+
+

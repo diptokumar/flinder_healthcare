@@ -25,6 +25,12 @@ router.post('/fetchdata', userController.dataFetch);
 
 router.post('/generate-url', userController.generateUrl);
 
+router.post('/get-access-token', userController.getAccessToken);
+
+router.get('/get-extend-token', userController.extendToken);
+
+router.get('/get-activity-data', userController.getDateActivity);
+
 
 
 
