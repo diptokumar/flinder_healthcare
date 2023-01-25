@@ -161,7 +161,7 @@ exports.generateUrl = catchAsync(async (req, res, next) => {
         clientId: clientId,
         clientSecret: clientSecret,
         returnUrl: url,
-        fitbit: true
+        // fitbit: true
     });
     res.status(200).json({
         status: 'success',
@@ -218,7 +218,7 @@ exports.extendToken = catchAsync(async (req, res, next) => {
 exports.getDateActivity = catchAsync(async (req, res, next)=> {
 
   const {date} = req.query;
-//   let url =  `https://api.fitbit.com/1/user/-/activities/date/${date}.json`;
+  let url =  `https://api.fitbit.com/1/user/-/activities/date/${date}.json`;
 
 //   https://api.fitbit.com/1/user/-/activities/date/2023-01-20.json
 
@@ -227,7 +227,7 @@ exports.getDateActivity = catchAsync(async (req, res, next)=> {
 // let url =  `https://api.fitbit.com/1/user/-/activities/steps/date/today/today/1min.json`;
 
 
-let url = `https://web-api.fitbit.com/1/user/B5SMNF/activities/minutesFairlyActive/date/2023-01-23/2023-01-16.json`
+// let url = `https://web-api.fitbit.com/1/user/B5SMNF/activities/minutesFairlyActive/date/2023-01-23/2023-01-16.json`
 
 
 
