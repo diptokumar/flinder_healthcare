@@ -251,3 +251,37 @@ exports.getDateActivity = catchAsync(async (req, res, next)=> {
 })
 
 
+
+exports.getIntraDataActivity = catchAsync(async (req, res, next)=> {
+    // https://api.fitbit.com/1/user/-/activities/steps/date/2023-01-01/2023-01-01/1min.json
+
+    // https://api.fitbit.com/1/user/-/activities/heart/date/2023-01-01/2023-01-01/1min.json
+
+    const {activityName, startDate, endDate} = req.query;
+
+    let url = `https://api.fitbit.com/1/user/-/activities/${activityName}/date/${startDate}/${endDate}/1min.json`;
+    
+    // if(dataType == 'intra'){
+    //     url = 
+    // }else{
+    //     url = `https://api.fitbit.com/1/user/-/activities/${activityName}/date/${startDate}/${endDate}/1min.json`
+    // }
+    
+    let header = {
+    "authorization": `Bearer ${req.user.bearerToken}`
+    }
+
+  let data = await axios.get(url,{
+    headers: header
+  });
+//   console.log(header, url, data)
+
+    res.status(200).json({ 
+    status: 'Success',
+    data: data.data
+  })
+
+
+})
+
+

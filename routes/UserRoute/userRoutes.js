@@ -29,7 +29,7 @@ router.post('/get-access-token', userController.getAccessToken);
 
 router.get('/get-extend-token', userController.extendToken);
 
-router.get('/get-activity-data', userController.getDateActivity);
+router.get('/get-activity-data', userController.getIntraDataActivity);
 
 
 
