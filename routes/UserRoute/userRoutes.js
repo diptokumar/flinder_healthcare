@@ -20,6 +20,8 @@ router.patch(
 
 
 router.use(authController.protect );
+router.post('/data-entry', userController.createData);
+router.get('/dashboard-data', userController.getDashboardData);
 
 router.post('/fetchdata', userController.dataFetch);
 
@@ -30,9 +32,6 @@ router.post('/get-access-token', userController.getAccessToken);
 router.get('/get-extend-token', userController.extendToken);
 
 router.get('/get-activity-data', userController.getIntraDataActivity);
-
-
-
 
 router
     .route('/')

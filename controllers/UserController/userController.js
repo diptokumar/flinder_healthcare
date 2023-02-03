@@ -6,6 +6,10 @@ var moment = require('moment-timezone');
 const { cloudinary } = require('./../../middleware/cloudnary');
 const { Api, ApiScope } = require('fitbit-api-handler');
 const { default: axios } = require('axios');
+const Data = require('./../../models/UserModel/typeDataModel');
+const momenttz = require('moment-timezone');
+
+
 
 exports.createUsers = catchAsync(async (req, res, next) => {
     if(req.files === null){
@@ -240,8 +244,7 @@ exports.getDateActivity = catchAsync(async (req, res, next)=> {
   let data = await axios.get(url,{
     headers: header
   });
-  console.log(header, url, data)
-
+  
   res.status(200).json({
     status: 'Success',
     data: data.data
@@ -285,3 +288,55 @@ exports.getIntraDataActivity = catchAsync(async (req, res, next)=> {
 })
 
 
+exports.createData = catchAsync(async (req, res, next) => {
+    
+
+    const {data} = req.body;
+    let array = [];
+    for (let index = 0; index < data.length; index++) {
+        let obj = {}
+        obj.categoryType = data[index].categoryType
+        obj.date = data[index].date
+        obj.dateString = data[index].date
+        obj.value = data[index].value
+        obj.userId = req.user._id
+
+        let dataCheck = await Data.findOne({
+            userId: req.user._id,
+            dateString: data[index].date
+        });
+
+        if (!dataCheck){
+            const createData = await Data.create(obj);
+
+            array.push(createData)
+        }
+        
+    }
+
+    res.status(200).json({
+        status: 'Success',
+        data: array
+    })
+
+})
+
+
+exports.getDashboardData = catchAsync(async (req, res, next) => {
+
+    let { categoryType, startDate, endDate, userId } = req.query;
+
+    const data = await Data.find({
+        categoryType: categoryType,
+        userId: userId,
+        date: {
+            '$gte': new Date(momenttz.tz(new Date(startDate), "Asia/Dhaka").format("YYYY-MM-DD 00:00:00")),
+            '$lte': new Date(momenttz.tz(new Date(endDate), "Asia/Dhaka").format('YYYY-MM-DD 23:59:59'))
+        }
+    }).select("categoryType dateString value");
+
+    res.status(200).json({
+        status: 'success',
+        data: data
+    })
+})
