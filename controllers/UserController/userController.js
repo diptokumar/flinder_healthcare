@@ -295,7 +295,7 @@ exports.createData = catchAsync(async (req, res, next) => {
     let array = [];
     for (let index = 0; index < data.length; index++) {
         let obj = {}
-        obj.categoryType = data[index].categoryType
+        obj.categoryType = data[index].category
         obj.date = data[index].date
         obj.dateString = data[index].date
         obj.value = data[index].value
