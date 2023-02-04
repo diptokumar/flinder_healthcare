@@ -73,9 +73,9 @@ app.use((req, res, next) => {
 });
 
 // 3) ROUTES
-app.use('/', healthcheck);
-app.use('/api/v1/users', userRouter);
-app.use('/api/v1/permission', permissionRouter);
+app.use('/flinder', healthcheck);
+app.use('/flinder/api/v1/users', userRouter);
+app.use('/flinder/api/v1/permission', permissionRouter);
 
 
 
