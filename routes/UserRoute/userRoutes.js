@@ -20,6 +20,14 @@ router.patch(
 
 
 router.use(authController.protect );
+
+
+router.get('/data-heart', userController.getDashboardheartData);
+
+
+router.post('/data-entry-heart', userController.createHeartRateData);
+
+
 router.post('/data-entry', userController.createData);
 router.get('/dashboard-data', userController.getDashboardData);
 

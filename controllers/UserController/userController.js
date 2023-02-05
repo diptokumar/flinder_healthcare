@@ -8,8 +8,8 @@ const { Api, ApiScope } = require('fitbit-api-handler');
 const { default: axios } = require('axios');
 const Data = require('./../../models/UserModel/typeDataModel');
 const momenttz = require('moment-timezone');
-
-
+const HeartRate = require('./../../models/UserModel/hearDataModel');
+const mongoose = require('mongoose')
 
 exports.createUsers = catchAsync(async (req, res, next) => {
     if(req.files === null){
@@ -329,12 +329,71 @@ exports.getDashboardData = catchAsync(async (req, res, next) => {
 
     const data = await Data.find({
         categoryType: categoryType,
-        // userId: userId,
+        userId: mongoose.Types.ObjectId(userId),
         date: {
             '$gte': new Date(momenttz.tz(new Date(startDate), "Asia/Dhaka").format("YYYY-MM-DD 00:00:00")),
             '$lte': new Date(momenttz.tz(new Date(endDate), "Asia/Dhaka").format('YYYY-MM-DD 23:59:59'))
         }
     }).select("categoryType dateString value");
+
+    res.status(200).json({
+        status: 'success',
+        data: data
+    })
+})
+
+
+
+
+
+exports.createHeartRateData = catchAsync(async (req, res, next) => {
+    
+
+    const {data} = req.body;
+    let array = [];
+    for (let index = 0; index < data.length; index++) {
+        let obj = {}
+        // obj.categoryType = data[index].category
+        obj.date = data[index].date
+        obj.dateString = data[index].date
+        obj.values = data[index].values
+        obj.userId = req.user._id
+
+        let dataCheck = await HeartRate.findOne({
+            userId: req.user._id,
+            dateString: data[index].date,
+            // categoryType : data[index].category
+        });
+
+        if (!dataCheck){
+            const createData = await HeartRate.create(obj);
+
+            array.push(createData)
+        }
+        
+    }
+
+    res.status(200).json({
+        status: 'Success',
+        data: array
+    })
+
+})
+
+
+
+exports.getDashboardheartData = catchAsync(async (req, res, next) => {
+
+    let { categoryType, startDate, endDate, userId } = req.query;
+
+    const data = await HeartRate.find({
+        // categoryType: categoryType,
+        userId: mongoose.Types.ObjectId(userId),
+        date: {
+            '$gte': new Date(momenttz.tz(new Date(startDate), "Asia/Dhaka").format("YYYY-MM-DD 00:00:00")),
+            '$lte': new Date(momenttz.tz(new Date(endDate), "Asia/Dhaka").format('YYYY-MM-DD 23:59:59'))
+        }
+    }).select("categoryType dateString values");
 
     res.status(200).json({
         status: 'success',
