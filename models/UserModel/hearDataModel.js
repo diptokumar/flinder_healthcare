@@ -4,7 +4,7 @@ const data = new mongoose.Schema({
     // categoryType: String,
     date: Date,
     dateString: String,
-    values: {
+    value: {
         heartRateZones: [
             {
                 caloriesOut: Number,
