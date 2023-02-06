@@ -401,7 +401,7 @@ exports.getDashboardheartData = catchAsync(async (req, res, next) => {
             '$gte': new Date(momenttz.tz(new Date(startDate), "Asia/Dhaka").format("YYYY-MM-DD 00:00:00")),
             '$lte': new Date(momenttz.tz(new Date(endDate), "Asia/Dhaka").format('YYYY-MM-DD 23:59:59'))
         }
-    }).select("categoryType dateString values");
+    }).select("categoryType dateString value");
 
     res.status(200).json({
         status: 'success',
