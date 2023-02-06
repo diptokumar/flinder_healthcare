@@ -359,11 +359,19 @@ exports.createHeartRateData = catchAsync(async (req, res, next) => {
         obj.value = data[index].value
         obj.userId = req.user._id
 
+        console.log({
+            userId: req.user._id,
+            dateString: data[index].dateTime,
+            // categoryType : data[index].category
+        })
         let dataCheck = await HeartRate.findOne({
             userId: req.user._id,
-            dateString: data[index].date,
+            dateString: data[index].dateTime,
             // categoryType : data[index].category
         });
+
+
+        console.log(dataCheck)
 
         if (!dataCheck){
             const createData = await HeartRate.create(obj);
