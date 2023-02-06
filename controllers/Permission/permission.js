@@ -10,7 +10,7 @@ exports.createPermission = catchAsync( async (req, res, next) => {
     let check = await Permission.findOne(req.body);
     if(check) {
       return  res.status(200).json({
-            status: 'success',
+            status: 'Failed',
             data: "Permission already given"
         })
     }
