@@ -3,11 +3,13 @@ const mongoose = require('mongoose');
 const permissionSchema = new mongoose.Schema({
     doctor: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
     },
     patient: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
     }
 },
     {

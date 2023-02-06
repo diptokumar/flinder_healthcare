@@ -5,6 +5,7 @@ const router = express.Router();
 const { uploadS3 } = require('../../middleware/multer');
 
 
+router.use(authController.protect);
 
 router
     .route('/')

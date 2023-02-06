@@ -7,6 +7,13 @@ const { cloudinary } = require('./../../middleware/cloudnary');
 
 exports.createPermission = catchAsync( async (req, res, next) => {
 
+    let check = await Permission.findOne(req.body);
+    if(check) {
+      return  res.status(200).json({
+            status: 'success',
+            data: "Permission already given"
+        })
+    }
     const permission = await Permission.create(req.body);
 
     res.status(200).json({
@@ -17,7 +24,13 @@ exports.createPermission = catchAsync( async (req, res, next) => {
 
 exports.getPermission = catchAsync(async (req, res, next) => {
 
-    const permission = await Permission.find().populate('doctor patient');
+    const permission = await Permission.find({
+        $or: [{
+            doctor: req.user._id
+        }, {
+            patient: req.user._id
+            }]
+    }).populate('doctor patient');
 
     res.status(200).json({
         status: 'success',
