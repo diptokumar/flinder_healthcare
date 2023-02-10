@@ -23,13 +23,14 @@ exports.createPermission = catchAsync( async (req, res, next) => {
 });
 
 exports.getPermission = catchAsync(async (req, res, next) => {
-
+    // const {permitted} = req.query;
     const permission = await Permission.find({
         $or: [{
             doctor: req.user._id
         }, {
             patient: req.user._id
-            }]
+        }],
+        permitted: req.query?.permitted
     }).populate('doctor patient');
 
     res.status(200).json({
