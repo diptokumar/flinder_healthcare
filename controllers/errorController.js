@@ -7,14 +7,14 @@ const handleCastErrorDB = err => {
 
 const handleDuplicateFieldsDB = err => {
   // console.log(err);
-  let value;
-  // const value = err.match(/(["'])(\\?.)*?\1/)[0];
-  // console.log(value);
-  console.log(err)
+  // let value;
+  const value = err?.message.match(/(["'])(\\?.)*?\1/)[0];
+  console.log(value);
+  // console.log(err)
   // Object.values(example)[0]
-  if (err.keyPattern.email === 1){
-    value = 'email duplicate';
-  }
+  // if (err.keyPattern.email === 1){
+  //   value = 'email duplicate';
+  // }
   // console.log(value);
   const message = `Duplicate field value: ${value}. Please use another value!`;
   return new AppError(message, 400);

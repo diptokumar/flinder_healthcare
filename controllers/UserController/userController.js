@@ -200,22 +200,46 @@ exports.extendToken = catchAsync(async (req, res, next) => {
     // global.FormData = require('form-data');
 
     // const {secretToken} = req.body
-    const api = new Api(req.user.clientId, req.user.clientSecret );
+    if (req.user && req.user.role == 'USER'){
+        const api = new Api(req.user.clientId, req.user.clientSecret);
 
-    // api.setAccessToken(token.access_token);
-    const extendedToken = await api.extendAccessToken(req.user.refresh_token);
-    console.log(extendedToken, "token")
+        // api.setAccessToken(token.access_token);
+        const extendedToken = await api.extendAccessToken(req.user.refresh_token);
+        console.log(extendedToken, "token")
 
-    const user = await User.findOneAndUpdate({_id: req.user._id},{
-        fitbit: true,
-        bearerToken: extendedToken.access_token,
-        refresh_token: extendedToken.refresh_token,
-        expireDate: extendedToken.expireDate
-    });
-    res.status(200).json({
-        status: 'success',
-        data: extendedToken
-    });
+        const user = await User.findOneAndUpdate({ _id: req.user._id }, {
+            fitbit: true,
+            bearerToken: extendedToken.access_token,
+            refresh_token: extendedToken.refresh_token,
+            expireDate: extendedToken.expireDate
+        });
+        res.status(200).json({
+            status: 'success',
+            data: extendedToken
+        });
+    }else{
+
+        const userdata = await User.findById(req.query.userid)
+
+        const api = new Api(userdata.clientId, userdata.clientSecret);
+
+        // api.setAccessToken(token.access_token);
+        const extendedToken = await api.extendAccessToken(userdata.refresh_token);
+        console.log(extendedToken, "token")
+
+        const user = await User.findOneAndUpdate({ _id: userdata._id }, {
+            fitbit: true,
+            bearerToken: extendedToken.access_token,
+            refresh_token: extendedToken.refresh_token,
+            expireDate: extendedToken.expireDate
+        });
+        res.status(200).json({
+            status: 'success',
+            data: extendedToken
+        });
+    }
+
+   
 })
 
 
@@ -260,7 +284,7 @@ exports.getIntraDataActivity = catchAsync(async (req, res, next)=> {
 
     // https://api.fitbit.com/1/user/-/activities/heart/date/2023-01-01/2023-01-01/1min.json
 
-    const {activityName, startDate, endDate} = req.query;
+    const { activityName, startDate, endDate, userid } = req.query;
 
     let url = `https://api.fitbit.com/1/user/-/activities/${activityName}/date/${startDate}/${endDate}/1min.json`;
     
@@ -270,9 +294,19 @@ exports.getIntraDataActivity = catchAsync(async (req, res, next)=> {
     //     url = `https://api.fitbit.com/1/user/-/activities/${activityName}/date/${startDate}/${endDate}/1min.json`
     // }
     
-    let header = {
-    "authorization": `Bearer ${req.user.bearerToken}`
+    let header;
+    
+    if (req.user.role == 'USER'){
+        header = {
+            "authorization": `Bearer ${req.user.bearerToken}`
+        }
+    }else{
+        let userData = await User.findById(userid)
+        header = {
+            "authorization": `Bearer ${userData.bearerToken}`
+        }
     }
+
 
   let data = await axios.get(url,{
     headers: header
@@ -290,30 +324,56 @@ exports.getIntraDataActivity = catchAsync(async (req, res, next)=> {
 
 exports.createData = catchAsync(async (req, res, next) => {
     
-
+    
     const {data} = req.body;
     let array = [];
-    for (let index = 0; index < data.length; index++) {
-        let obj = {}
-        obj.categoryType = data[index].category
-        obj.date = data[index].date
-        obj.dateString = data[index].date
-        obj.value = data[index].value
-        obj.userId = req.user._id
+    if (req.user.role == 'USER'){
 
-        let dataCheck = await Data.findOne({
-            userId: req.user._id,
-            dateString: data[index].date,
-            categoryType : data[index].category
-        });
+        for (let index = 0; index < data.length; index++) {
+            let obj = {}
+            obj.categoryType = data[index].category
+            obj.date = data[index].date
+            obj.dateString = data[index].date
+            obj.value = data[index].value
+            obj.userId = req.user._id
 
-        if (!dataCheck){
-            const createData = await Data.create(obj);
+            let dataCheck = await Data.findOne({
+                userId: req.user._id,
+                dateString: data[index].date,
+                categoryType: data[index].category
+            });
 
-            array.push(createData)
+            if (!dataCheck) {
+                const createData = await Data.create(obj);
+
+                array.push(createData)
+            }
+
         }
-        
+    }else{
+        for (let index = 0; index < data.length; index++) {
+            let obj = {}
+            obj.categoryType = data[index].category
+            obj.date = data[index].date
+            obj.dateString = data[index].date
+            obj.value = data[index].value
+            obj.userId = req.query.userid
+
+            let dataCheck = await Data.findOne({
+                userId: req.query.userid,
+                dateString: data[index].date,
+                categoryType: data[index].category
+            });
+
+            if (!dataCheck) {
+                const createData = await Data.create(obj);
+
+                array.push(createData)
+            }
+
+        }
     }
+    
 
     res.status(200).json({
         status: 'Success',
@@ -351,6 +411,7 @@ exports.createHeartRateData = catchAsync(async (req, res, next) => {
 
     const {data} = req.body;
     let array = [];
+    if (req.user.role == 'USER'){
     for (let index = 0; index < data.length; index++) {
         let obj = {}
         // obj.categoryType = data[index].category
@@ -379,6 +440,36 @@ exports.createHeartRateData = catchAsync(async (req, res, next) => {
             array.push(createData)
         }
         
+    }}else{
+        for (let index = 0; index < data.length; index++) {
+            let obj = {}
+            // obj.categoryType = data[index].category
+            obj.date = data[index].dateTime
+            obj.dateString = data[index].dateTime
+            obj.value = data[index].value
+            obj.userId = req.query.userid
+
+            console.log({
+                userId: req.query.userid,
+                dateString: data[index].dateTime,
+                // categoryType : data[index].category
+            })
+            let dataCheck = await HeartRate.findOne({
+                userId: req.query.userid,
+                dateString: data[index].dateTime,
+                // categoryType : data[index].category
+            });
+
+
+            console.log(dataCheck)
+
+            if (!dataCheck) {
+                const createData = await HeartRate.create(obj);
+
+                array.push(createData)
+            }
+
+        }
     }
 
     res.status(200).json({

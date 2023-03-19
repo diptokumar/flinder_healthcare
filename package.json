@@ -1,5 +1,5 @@
 {
-  "name": "healthCheckApp",
+  "name": "health check App",
   "version": "1.0.0",
   "description": "health check bp",
   "main": "app.js",
