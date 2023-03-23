@@ -23,20 +23,34 @@ exports.createPermission = catchAsync( async (req, res, next) => {
 });
 
 exports.getPermission = catchAsync(async (req, res, next) => {
-    // const {permitted} = req.query;
-    const permission = await Permission.find({
-        $or: [{
-            doctor: req.user._id
-        }, {
-            patient: req.user._id
-        }],
-        permitted: req.query?.permitted
-    }).populate('doctor patient');
 
-    res.status(200).json({
-        status: 'success',
-        data: permission
-    })
+    if (req.user && req.user.role == 'ADMIN') {
+        const permission = await Permission.find({
+            permitted: req.query?.permitted
+        }).populate('doctor patient');
+
+        res.status(200).json({
+            status: 'success',
+            data: permission
+        })
+
+    }else{
+        const permission = await Permission.find({
+            $or: [{
+                doctor: req.user._id
+            }, {
+                patient: req.user._id
+            }],
+            permitted: req.query?.permitted
+        }).populate('doctor patient');
+
+        res.status(200).json({
+            status: 'success',
+            data: permission
+        })
+    }
+
+    
 });
 
 exports.updatePermission = catchAsync(async (req, res, next)=>{
