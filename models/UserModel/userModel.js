@@ -49,7 +49,10 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  clientId: String,
+  clientId: {
+    type: String,
+    unique: true,
+  },
   clientSecret: String,
   returnUrl: String,
   bearerToken: String,
