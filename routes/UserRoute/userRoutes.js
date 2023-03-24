@@ -21,6 +21,8 @@ router.patch(
 
 router.use(authController.protect );
 
+router.get('/extendfor-all', userController.extendTokenforAll);
+
 
 router.get('/data-heart', userController.getDashboardheartData);
 

@@ -499,3 +499,47 @@ exports.getDashboardheartData = catchAsync(async (req, res, next) => {
         data: data
     })
 })
+
+
+
+
+exports.extendTokenforAll = catchAsync(async (req, res, next) => {
+    // global.FormData = require('form-data');
+
+    // const {secretToken} = req.body
+    
+    let array = [];
+    let users = await User.find({ fitbit: true, role: 'USER'});
+    for (let index = 0; index < users.length; index++) {
+        // const element = array[index];
+        console.log(users[index], "users")
+        const userdata = await User.findById(users[index]._id)
+
+        const api = new Api(userdata.clientId, userdata.clientSecret);
+
+        // api.setAccessToken(token.access_token);
+        const extendedToken = await api.extendAccessToken(userdata.refresh_token).catch((error) => {
+            // console.log(error);
+            // continue;
+        });
+        console.log(extendedToken, "token")
+        if (extendedToken === undefined){
+            continue;
+        }
+        const user = await User.findOneAndUpdate({ _id: userdata._id }, {
+            fitbit: true,
+            bearerToken: extendedToken.access_token,
+            refresh_token: extendedToken.refresh_token,
+            expireDate: extendedToken.expireDate
+        });
+        array.push(user)
+    }
+        
+        res.status(200).json({
+            status: 'success',
+            data: array
+        });
+    
+
+
+})
