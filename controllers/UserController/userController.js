@@ -522,7 +522,7 @@ exports.extendTokenforAll = catchAsync(async (req, res, next) => {
             // console.log(error);
             // continue;
         });
-        console.log(extendedToken, "token")
+        // console.log(extendedToken, "token")
         if (extendedToken === undefined){
             continue;
         }
